@@ -33,12 +33,15 @@ function myhook_save_node_pdf_view() {
             );
 
   $result = $result->fetchAll();
-
+  $output = '';
   foreach ($result as $record) {
     save_pdf($record->nid);
+    $output .= 'Save node-'.$record->nid.'.pdf';
+    $output .= "<br />";
+    $output .= "<br />";
   }
-
-  return 'save node to pdf success';
+  $output .= 'All pdf file in <b>sites/default/files/pdf_output/</b> folder';
+  return $output;
 
 }
 

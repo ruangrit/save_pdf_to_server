@@ -1,0 +1,64 @@
+<?php
+
+
+function myhook_menu() {
+    $items['save-node-pdf'] = array(
+      'title' => 'Save node to pdf',
+      'page callback' => 'myhook_save_node_pdf_view',
+      'access arguments' => array('administer nodes'),
+    );
+    return $items;
+}
+
+
+function myhook_save_node_pdf_view() {
+  drupal_set_time_limit(0);
+  $content_type = $_GET['content_type'];
+  $node_id_from = $_GET['node_id_from'];
+  $node_id_to   = $_GET['node_id_to'];
+
+  if (!isset($content_type) || !isset($node_id_from) || !isset($node_id_to)) {
+    return 'Please pass param after url example: http://example.com/save-node-pdf?content_type=article&node_id_from=10&node_id_to=20'; 
+  }
+
+  $sql = "SELECT nid FROM {node} WHERE type = :content_type  AND nid >= :node_id_from AND nid <= :node_id_to";
+  $result = db_query($sql, array(
+              ':content_type' => $content_type,
+              'node_id_from' => $node_id_from,
+              ':node_id_to' => $node_id_to
+              )
+            );
+
+  $result = $result->fetchAll();
+
+  foreach ($result as $record) {
+    save_pdf($record->nid);
+  }
+
+  return 'save node to pdf success';
+
+}
+
+function save_pdf($nid) {
+
+  $lib_path = libraries_get_path('dompdf');
+  require_once($lib_path."/dompdf_config.inc.php");
+  $html = file_get_contents('http://localhost/drupal7-4/print/1');; 
+  $dompdf = new DOMPDF;
+  $dompdf->load_html($html);
+  $dompdf->render();
+  $pdfoutput = $dompdf->output();
+  //  Checks whether there is an output folder inside sites/default/files
+  if (!is_dir('public://output')) {
+    mkdir("public://output", 0777);
+  //  Creates a folder and changes its permissions
+
+  }
+  $filename = 'sites/default/files/output/' . 'node-'.$nid.'.pdf';
+  $fp = fopen($filename, "w+");
+  fwrite($fp, $pdfoutput);
+  //  Writes the pdf output to a file
+  fclose($fp);
+
+
+}

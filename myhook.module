@@ -13,6 +13,7 @@ function myhook_menu() {
 
 function myhook_save_node_pdf_view() {
   drupal_set_time_limit(0);
+  module_load_include('inc', 'print', 'print.pages');
   $content_type = $_GET['content_type'];
   $node_id_from = $_GET['node_id_from'];
   $node_id_to   = $_GET['node_id_to'];
@@ -46,8 +47,9 @@ function myhook_save_node_pdf_view() {
 }
 
 function save_pdf($nid) {
-
-  $html = file_get_contents($GLOBALS['base_url'].'/print/'.$nid);; 
+  $node = print_controller($nid, 'html');
+  $html = theme('print', array('node' => $node));
+  //$html = file_get_contents($GLOBALS['base_url'].'/print/'.$nid);; 
   $dompdf = new DOMPDF;
   $dompdf->load_html($html);
   $dompdf->render();

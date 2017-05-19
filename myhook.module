@@ -38,7 +38,7 @@ function myhook_save_node_pdf_view() {
   $output = '';
   foreach ($result as $record) {
     save_pdf($record->nid);
-    $output .= 'Save node-'.$record->nid.'.pdf';
+    $output .= 'Save animal-'.$record->nid.'.pdf';
     $output .= "<br />";
     $output .= "<br />";
   }
@@ -83,7 +83,7 @@ function save_pdf($nid) {
   //  Creates a folder and changes its permissions
 
   }
-  $filename = 'sites/default/files/pdf_output/' . 'node-'.$nid.'.pdf';
+  $filename = 'sites/default/files/pdf_output/' . 'animal-'.$nid.'.pdf';
   $fp = fopen($filename, "w+");
   fwrite($fp, $pdfoutput);
   //  Writes the pdf output to a file

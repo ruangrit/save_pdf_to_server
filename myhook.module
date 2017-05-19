@@ -24,7 +24,7 @@ function myhook_save_node_pdf_view() {
   }
 
   $lib_path = libraries_get_path('dompdf');
-  require_once($lib_path."/dompdf_config.inc.php");
+  //require_once($lib_path."/dompdf_config.inc.php");
 
   $sql = "SELECT nid FROM {node} WHERE type = :content_type  AND nid >= :node_id_from AND nid <= :node_id_to";
   $result = db_query($sql, array(

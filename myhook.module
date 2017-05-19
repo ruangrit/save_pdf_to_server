@@ -14,6 +14,7 @@ function myhook_menu() {
 function myhook_save_node_pdf_view() {
   drupal_set_time_limit(0);
   module_load_include('inc', 'print', 'print.pages');
+  module_load_include('inc', 'print_pdf_dompdf', 'print_pdf_dompdf.pages');
   $content_type = $_GET['content_type'];
   $node_id_from = $_GET['node_id_from'];
   $node_id_to   = $_GET['node_id_to'];
@@ -48,12 +49,34 @@ function myhook_save_node_pdf_view() {
 
 function save_pdf($nid) {
   $node = print_controller($nid, 'html');
-  $html = theme('print', array('node' => $node));
+  $html = theme('print', array('node' => $node, 'format' => 'pdf'));
+  $html = preg_replace('!<tbody[^>]*?>|</tbody>!i', '', $html);
+  $pattern = '!<(img\s[^>]*?)>!is';
+  $html = preg_replace_callback($pattern, '_print_rewrite_urls', $html);
+
+
+  // Convert the a href elements, to make sure no relative links remain
+  $pattern = '!<(a\s[^>]*?)>!is';
+  $html = preg_replace_callback($pattern, '_print_rewrite_urls', $html);
+  // And make anchor links relative again, to permit in-PDF navigation
+
+  //$html = file_get_contents($GLOBALS['base_url'].'/printpdf/'.$nid);; 
+
+  /*
+  return false;
   //$html = file_get_contents($GLOBALS['base_url'].'/print/'.$nid);; 
   $dompdf = new DOMPDF;
+  $dompdf->set_base_path('/drupal7-4/');
+  $dompdf->set_host('localhost');
+  $dompdf->set_protocol('http://');
   $dompdf->load_html($html);
   $dompdf->render();
   $pdfoutput = $dompdf->output();
+  */
+  $meta = array(
+    'url' => 'http://localhost/drupal7-4/',
+  );
+  $pdfoutput = print_pdf_dompdf_print_pdf_generate($html, $meta);
   //  Checks whether there is an output folder inside sites/default/files
   if (!is_dir('public://pdf_output')) {
     mkdir("public://pdf_output", 0777);

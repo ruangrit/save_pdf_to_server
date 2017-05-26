@@ -90,3 +90,14 @@ function save_pdf($nid) {
   fclose($fp);
 
 }
+
+function myhook_node_submit($node, $form, &$form_state) {
+  if ($node->type == 'rabbit' && $node->field_rb_age != "") {
+    $age = $node->field_rb_age['und'][0]['value'];
+    $date_created = substr($node->field_rb_date['und'][0]['value'], 0, 10);
+    $date_created = strtotime($date_created);
+    $date_birth = strtotime("-".$age." day", $date_created);
+    $date_birth = date('Y-m-d', $date_birth);
+    $node->field_rb_date_birth['und'][0]['value'] = $date_birth." 00:00:00";
+  }
+}
